@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>뉴스 검색</title>
+  <style>
+    :root { color-scheme: light; --ink:#182335; --muted:#667085; --line:#e4e9f0; --blue:#2459d3; --paper:#f5f7fb; }
+    * { box-sizing:border-box } body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif }
+    main { width:min(920px, calc(100% - 32px)); margin:54px auto 80px } header { margin-bottom:28px }
+    h1 { margin:0 0 6px; font-size:30px; letter-spacing:-.04em } header p { color:var(--muted); margin:0 }
+    form { background:white; padding:22px; border:1px solid var(--line); border-radius:14px; box-shadow:0 6px 24px #1823350a }
+    .grid { display:grid; grid-template-columns:2fr 1fr 1fr .8fr; gap:14px; align-items:end }
+    label { display:block; font-size:13px; font-weight:650; margin-bottom:6px }
+    input,select { width:100%; height:42px; padding:0 11px; border:1px solid #d7deea; border-radius:8px; background:#fff; color:var(--ink); font:inherit }
+    button { margin-top:16px; border:0; border-radius:8px; background:var(--blue); color:white; font:inherit;font-weight:650;padding:11px 18px;cursor:pointer }
+    button:hover { background:#1748b7 } .message { margin:18px 0; padding:12px 15px; border-radius:9px; background:#fff4e5; color:#8b4b00 }
+    .summary { margin:26px 0 12px; color:var(--muted); font-size:14px } .card { background:white; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:10px 0 }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:9px } .tag { font-size:12px; font-weight:650; border-radius:20px; padding:3px 9px; background:#edf2ff; color:#294c9b }
+    .tag.field { background:#eaf7f1; color:#27724d } h2 { font-size:17px; line-height:1.45; margin:0 0 9px } h2 a { text-decoration:none; color:var(--ink) } h2 a:hover { color:var(--blue) }
+    .meta { color:var(--muted); font-size:13px } .empty { background:white;border:1px dashed #cbd4e2;border-radius:12px;text-align:center;padding:30px;color:var(--muted) }
+    footer { margin-top:30px;color:var(--muted);font-size:12px }
+    @media(max-width:720px) { main{margin-top:30px}.grid{grid-template-columns:1fr 1fr}.grid .keyword{grid-column:1/-1} }
+  </style>
+</head>
+<body><main>
+  <header><h1>뉴스 검색</h1><p>키워드와 기간을 지정해 관련 기사를 찾아보세요.</p></header>
+  <form method="post">
+    <div class="grid">
+      <div class="keyword"><label for="keyword">검색 키워드</label><input id="keyword" name="keyword" value="{{ keyword }}" placeholder="예: 스마트 제조, 탄소중립" required></div>
+      <div><label for="start_date">시작일</label><input id="start_date" type="date" name="start_date" value="{{ start_date }}" required></div>
+      <div><label for="end_date">종료일</label><input id="end_date" type="date" name="end_date" value="{{ end_date }}" required></div>
+      <div><label for="limit">기사 개수</label><select id="limit" name="limit">{% for n in range(10, 31) %}<option value="{{ n }}" {% if limit == n %}selected{% endif %}>{{ n }}개</option>{% endfor %}</select></div>
+    </div>
+    <button type="submit">뉴스 검색</button>
+  </form>
+  {% if error %}<div class="message" role="alert">{{ error }}</div>{% endif %}
+  {% if searched and not error %}<p class="summary"><strong>{{ results|length }}개</strong>의 기사를 찾았습니다. 제목을 누르면 기사 페이지로 이동합니다.</p>
+    {% if results %}{% for item in results %}<article class="card">
+      <div class="tags"><span class="tag">{{ item.business }}</span><span class="tag field">{{ item.field }}</span></div>
+      <h2><a href="{{ item.link }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a></h2>
+      <div class="meta">{{ item.source }} · {{ item.date }} · <a href="{{ item.link }}" target="_blank" rel="noopener noreferrer">기사 원문 열기 ↗</a></div>
+    </article>{% endfor %}{% else %}<div class="empty">선택한 기간에 해당하는 기사를 찾지 못했습니다. 키워드나 날짜 범위를 바꿔 다시 검색해 보세요.</div>{% endif %}
+  {% endif %}
+  <footer>뉴스 검색 결과는 Google News RSS를 바탕으로 제공됩니다. 분류 태그는 제목과 요약의 키워드로 자동 지정되며, 기사 원문은 각 언론사 페이지에서 확인할 수 있습니다.</footer>
+</main></body></html>
